@@ -12,7 +12,7 @@
 
 <body ng-controller="applicationController as applicationCtrl">
 	
-	<h1>Consitutez votre dossier</h1>
+	<h1>Consitutez votre dossier , {{applicationCtrl.username}}</h1>
 	</br>
 
 	<div class="container-fluid">
@@ -44,7 +44,7 @@
 	   
 	    <ul>
 	        <li ng-repeat="f in files" style="font:smaller">
-	        	{{f.name}} - {{f.progress}}
+	        	{{f.name}} - {{f.progress}} - {{applicationCtrl.username}}
 	        </li>
 	    </ul>
 
@@ -52,7 +52,7 @@
 
 
 	<div ng-controller="getImages as imgCtrl">
-		<img ng-src="{{f.dataUrl}}	">
+		<img ng-src="{{url}}	">
 	
 	</div>
 

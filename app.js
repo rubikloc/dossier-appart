@@ -2,9 +2,49 @@
 
 	var app = angular.module('applicationManager',['angularFileUpload']);
 
-	app.controller('applicationController', ['$http',function($http){
+	app.controller('applicationController', ['$http','$q',function($http,$q){
+
 
 		Parse.initialize("HCf9xf3DDDBH4BTY3qwRqxVHeiQ2GW1V2JIx6KBv", "78VAu3yojn4H5bhjKEPa1opxy3bHmQSfPk8S1dAo");
+
+		var thisApp =this;
+		thisApp.username = "";
+
+
+		var myThirdDefered = $q.defer();
+		var myThirdPromise = myThirdDefered.promise;
+
+		myThirdPromise.then(
+			function(user){
+				var currentUser = Parse.User.current();
+				thisApp.username = currentUser.get("username");
+				console.log(thisApp.username); 
+			},
+			function(error){
+				console.log(error);
+			})
+/*
+		var user = new Parse.User();
+		user.set("username","test");
+		user.set("password","test");
+		user.set("email","test@test.com");
+		user.signUp(null, {
+				success : function(user){
+					console.log(user.objectId);
+					Parse.},
+				error : function(error){
+					console.log(error);
+				}
+		});
+*/
+		Parse.User.logIn("test","test", {
+			success: function(user){
+				myThirdDefered.resolve(user);
+			},
+			error:function(error){
+				myFirstDeferred.reject(error);
+			}
+		});
 
 /*
 		var TestObject = Parse.Object.extend("TestObject2");
@@ -54,8 +94,6 @@
 			return file.url ? true:false;
 		};
 
-		//this.addFile = function(application){};
-
 	});
 
 
@@ -84,6 +122,7 @@
 					jobApplication.set("applicantName", "Joe Smith");
 					jobApplication.set("applicantResumeFile", parseFile);
 					jobApplication.set("fileName", file.name)
+					jobApplication.setACL(new Parse.ACL(Parse.User.current()));
 					jobApplication.save();					
 
 	            }
@@ -102,9 +141,9 @@
 
 		var myFirstPromise = myFirstDeferred.promise;
 
-		myFirstPromise  
-			.then(function(data) {
-			    var file = data.get("applicantResumeFile");
+		myFirstPromise
+			.then(function(jobApplication) {
+			    var file = jobApplication.get("applicantResumeFile");
 			    // The object was retrieved successfully.
 			    $scope.url = file.url();
 			}, function(error) {
@@ -118,7 +157,7 @@
 		var query = new Parse.Query(Test);
 
 		//call async query and send the answer to the promise
-		query.get("JUGkrZ7XQe", {
+		query.get("5HeoGFg7ul", {
 		  	success: function(jobApplication) {
 		  		myFirstDeferred.resolve(jobApplication);
 		  	},
