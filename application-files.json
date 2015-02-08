@@ -1,0 +1,20 @@
+[
+	{
+		"url": "Test 1",
+		"type": "id"
+	},
+
+	{
+		"type": "salary"
+	},
+	{
+		"type": "salary"
+	},
+	{
+		"url": "Test 3",
+		"type": "salary"
+	},
+	{
+		"type": "salary"
+	}
+]

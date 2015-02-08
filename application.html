@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html ng-app="applicationManager">
+  <head>
+    <link rel="stylesheet" type="text/css" href="./bootstrap-3.3.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="./css/common.css" />
+
+    <script type="text/javascript" src="./angular/angular.min.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+    <script src="//www.parsecdn.com/js/parse-1.3.4.min.js"></script>
+    <script src="js/angular-file-upload.min.js"></script> 
+  <head>
+
+<body ng-controller="applicationController as applicationCtrl">
+	
+	<h1>Consitutez votre dossier</h1>
+	</br>
+
+	<div class="container-fluid">
+		<div class="row">
+	  		<div class="col-md-2" ng-repeat="file in applicationCtrl.files">
+	  			
+	  			<ul class="text-center list-unstyled" ng-controller="fileController as fileCtrl">
+  					<img ng-src="img/check.png" ng-show="{{fileCtrl.hasUrl(file)}}"/>  					
+  					<img ng-src="img/file.png" ng-hide="{{fileCtrl.hasUrl(file)}}"/>  					  					
+  					<li>Type : {{file.type}}</li>
+  					<li><b>{{file.url}}</b></li>  					
+  					<button type="submit" class="btn btn-default" ng-hide="{{fileCtrl.hasUrl(file)}}"/>Upload</button>
+				</ul>
+
+	  		</div>
+		</div>
+	</div>
+
+	
+	<div ng-controller="MyCtrl">
+
+
+	    Drop File:
+	    <div ng-file-drop ng-file-select ng-model="files" class="drop-box" 
+	        drag-over-class="dragover" ng-multiple="true" allow-dir="true"
+	        accept="image/*,application/pdf">Drop pdfs or images here or click to upload</div>
+	   
+	    <div ng-no-file-drop>File Drag/Drop is not supported for this browser</div>
+	   
+	    <ul>
+	        <li ng-repeat="f in files" style="font:smaller">{{f.name}}</li>
+	    </ul>
+
+	</div>
+
+
+	<div ng-controller="getImages as imgCtrl">
+		{{imgCrl.url}}		
+	</div>
+
+</body>
+
+</html>
+
+
