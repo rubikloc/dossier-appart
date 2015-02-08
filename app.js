@@ -60,7 +60,7 @@
 
 
 
-	app.controller('uploadController', ['$scope', function ($scope) {
+	app.controller('uploadController', ['$scope', '$q', function ($scope, $q) {
 	    $scope.$watch('files', function () {
 	        $scope.upload($scope.files);
 	    });
@@ -75,21 +75,53 @@
   					var parseFile = new Parse.File(file.name, file);
 
 					parseFile.save().then(function() {
-					  alert("The file has been saved to Parse.") ;
+					  //alert("The file has been saved to Parse.") ;
 					}, function(error) {
 					  console.log(error);
 					});
+
+
+					$scope.url = "";
+					var mySecondDeferred = $q.defer();
+					var mySecondPromise = mySecondDeferred.promise;
+
+					mySecondPromise.
+							then(function(jobApplication){
+									
+									$scope.url = jobApplication.get('applicantResumeFile').url();
+									console.log($scope.url);
+								},
+								function(error){
+									console.log("Pb");
+								});
+
+
 
 					var jobApplication = new Parse.Object("JobApplication");
 					jobApplication.set("applicantName", "Joe Smith");
 					jobApplication.set("applicantResumeFile", parseFile);
 					jobApplication.set("fileName", file.name)
-					jobApplication.save();					
+					jobApplication.save(null, {
+						  success: function(jobApplication) {
+						    // Execute any logic that should take place after the object is saved.
+						    alert('New object created with objectId: ' + jobApplication.id);
+						    mySecondDeferred.resolve(jobApplication);
+
+
+						  },
+						  error: function(jobApplication, error) {
+						    // Execute any logic that should take place if the save fails.
+						    // error is a Parse.Error with an error code and message.
+						    alert('Failed to create new object, with error code: ' + error.message);
+						  }
+		});					
 
 	            }
 	        }
 	    };
 	}]);
+
+/*
 
 	app.controller('getImages', ['$scope','$q', function($scope,$q){
 
@@ -128,7 +160,7 @@
 		});	
 	}]);
 
-
+*/
 
 
 
