@@ -1,0 +1,21 @@
+{"header" :  {
+				"title":"Dossier appart'",
+			 	"image":"img/flou.png",
+			 	"description" : "Mon dossier de location en ligne en 3 clics !",
+			 	"callToAction" : "Je constitue mon dossier gratuitement"
+			 },
+"sections" : [
+			  {
+				"title":"Un dossier complet, bien organisé",
+				"image":"img/complet.png",
+				"description" : "Ne cherchez plus les pièces dont vous avez besoin. MonDossierAppart' vous guide dans la constitution du dossier étape par étape.",
+				"callToAction" : "Je constitue mon dossier"
+			  },
+			  {
+	  			"title":"Un dossier complet, bien organisé",
+				"image":"img/complet.png",
+				"description" : "Ne cherchez plus les pièces dont vous avez besoin. MonDossierAppart' vous guide dans la constitution du dossier étape par étape.",
+				"callToAction" : "Je constitue mon dossier"
+				}
+			  ]
+}
