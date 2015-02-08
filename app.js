@@ -60,7 +60,7 @@
 
 
 
-	app.controller('MyCtrl', ['$scope', function ($scope) {
+	app.controller('uploadController', ['$scope', function ($scope) {
 	    $scope.$watch('files', function () {
 	        $scope.upload($scope.files);
 	    });
@@ -71,7 +71,7 @@
 
 	            for (var i = 0; i < files.length; i++) {
 	                var file = files[i];
-
+	                console.log(file);
   					var parseFile = new Parse.File(file.name, file);
 
 					parseFile.save().then(function() {
@@ -91,35 +91,41 @@
 	    };
 	}]);
 
-	app.controller('getImages', ['$scope', function($scope){
+	app.controller('getImages', ['$scope','$q', function($scope,$q){
 
-		var Test = Parse.Object.extend("JobApplication");
-		var query = new Parse.Query(Test);
-		
 		
 		$scope.url = "";
 
-		query.get("JUGkrZ7XQe", {
-		  	success: function(jobApplication) {		    
-			    var file = jobApplication.get("applicantResumeFile");
-			  	console.log(file.url());
+		//create a defered to embed async call
+		var myFirstDeferred = $q.defer();
+
+
+		var myFirstPromise = myFirstDeferred.promise;
+
+		myFirstPromise  
+			.then(function(data) {
+			    var file = data.get("applicantResumeFile");
 			    // The object was retrieved successfully.
 			    $scope.url = file.url();
-			    
+			}, function(error) {
+			    console.log('couille', error);
+			});
 
+
+
+
+		var Test = Parse.Object.extend("JobApplication");
+		var query = new Parse.Query(Test);
+
+		//call async query and send the answer to the promise
+		query.get("JUGkrZ7XQe", {
+		  	success: function(jobApplication) {
+		  		myFirstDeferred.resolve(jobApplication);
 		  	},
 		  	error: function(object, error) {
-			    // The object was not retrieved successfully.
-			    // error is a Parse.Error with an error code and message.
-			    console.log("Couille");
+		  		myFirstDeferred.reject(object,error);
 		  	}
 		});	
-			
-		
-
-		
-
-
 	}]);
 
 

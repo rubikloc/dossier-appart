@@ -32,7 +32,7 @@
 	</div>
 
 	
-	<div ng-controller="MyCtrl">
+	<div ng-controller="uploadController as uploadCtrl">
 
 
 	    Drop File:
@@ -43,14 +43,17 @@
 	    <div ng-no-file-drop>File Drag/Drop is not supported for this browser</div>
 	   
 	    <ul>
-	        <li ng-repeat="f in files" style="font:smaller">{{f.name}}</li>
+	        <li ng-repeat="f in files" style="font:smaller">
+	        	{{f.name}} - {{f.progress}}
+	        </li>
 	    </ul>
 
 	</div>
 
 
 	<div ng-controller="getImages as imgCtrl">
-		{{imgCrl.url}}		
+		<img ng-src="{{f.dataUrl}}	">
+	
 	</div>
 
 </body>
