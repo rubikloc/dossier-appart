@@ -23,7 +23,7 @@
   					<img ng-src="img/check.png" ng-show="{{fileCtrl.hasUrl(file)}}"/>  					
   					<img ng-src="img/file.png" ng-hide="{{fileCtrl.hasUrl(file)}}"/>  					  					
   					<li>Type : {{file.type}}</li>
-  					<li><b>{{file.url}}</b></li>  					
+  					<li><b>{{file.url}}</b></li>
   					<button type="submit" class="btn btn-default" ng-hide="{{fileCtrl.hasUrl(file)}}">Upload</button>
 				</ul>
 
@@ -44,7 +44,7 @@
 	   
 	    <ul>
 	        <li ng-repeat="f in files" style="font:smaller">
-	        	{{f.name}} - {{f.progress}} - {{applicationCtrl.username}}
+	        	{{f.name}}  - {{applicationCtrl.username}}
 	        </li>
 	    </ul>
 

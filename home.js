@@ -18,5 +18,13 @@
 			templateUrl : "header.html"	
 		};
 	});
+	
+	
+	app.directive("sectionDirective",function(){
+		return{
+			restrict : "E",
+			templateUrl : "home/section.html"	
+		};
+	});
 
 })();
