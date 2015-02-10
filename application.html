@@ -31,7 +31,14 @@
 		</div>
 	</div>
 
-	
+	<div ng-controller="retrieveController as retrieveCtrl">
+        <ul>
+            <li ng-repeat="result in retrieveCtrl.results">
+            <img class="thumbnailC thumbnail" ng-src="{{result}}">
+            </li>
+        </ul>
+	    <button ng-click="retrieveResults()">Retrouve moi tous mes JobApplications</button>
+	</div>
 	<div ng-controller="uploadController as uploadCtrl">
 
 

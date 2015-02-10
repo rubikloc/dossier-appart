@@ -96,6 +96,53 @@
 
 	});
 
+    app.controller('retrieveController', ['$q','$scope', function($q,$scope){
+        
+        var userResults = this;
+        
+        userResults.results = [];
+        
+        
+        //fonction qui récupère les JobApplication du user courent et qui transmet les urls à la vue
+        $scope.retrieveResults = function() {
+            console.log($scope);
+            var userResultDefered = $q.defer();
+            
+            var userResultPromise = userResultDefered.promise;
+            
+            userResultPromise.
+                then(function(results){
+                    var urls =[];
+                    for(var i= 0; i < results.length; i++){
+                        urls.push(results[i].get("applicantResumeFile").url());
+                    }
+                    userResults.results =urls;
+                },
+                function(error){
+                    console.log('erreur dans la récup des résultats pour un user: ',error);
+                }
+            );
+                
+            var JobApplication = Parse.Object.extend("JobApplication");
+            
+            var userResultsQuery = new Parse.Query(JobApplication);
+            
+            userResultsQuery.equalTo("parent",Parse.User.current());
+            
+            userResultsQuery.find({
+               success : function(results){
+                   userResultDefered.resolve(results);
+               },
+               error : function(object, error){
+                   userResultDefered.reject(object,error);
+               }
+            });
+        }
+    }]);
+    
+    
+    
+
 
 
 	app.controller('uploadController', ['$scope', '$q', function ($scope, $q) {
@@ -109,7 +156,6 @@
 
 	            for (var i = 0; i < files.length; i++) {
 	                var file = files[i];
-	                console.log(file);
   					var parseFile = new Parse.File(file.name, file);
 
 					parseFile.save().then(function() {
@@ -125,9 +171,7 @@
 
 					mySecondPromise.
 							then(function(jobApplication){
-									
 									$scope.url = jobApplication.get('applicantResumeFile').url();
-									console.log($scope.url);
 								},
 								function(error){
 									console.log("Pb");
@@ -140,12 +184,12 @@
 					jobApplication.set("applicantResumeFile", parseFile);
 					jobApplication.set("fileName", file.name)
 					jobApplication.setACL(new Parse.ACL(Parse.User.current()));
+					jobApplication.set("parent",Parse.User.current());
 					jobApplication.save();					
 
 					jobApplication.save(null, {
 						  success: function(jobApplication) {
 						    // Execute any logic that should take place after the object is saved.
-						    alert('New object created with objectId: ' + jobApplication.id);
 						    mySecondDeferred.resolve(jobApplication);
 
 
@@ -162,6 +206,7 @@
 	        }
 	    };
 	}]);
+
 
 /*
 
