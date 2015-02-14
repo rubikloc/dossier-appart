@@ -4,7 +4,8 @@
 	app.config(['$routeProvider', function($routeProvider) {	
 		$routeProvider.
 	        when('/signup', {templateUrl: 'signup.html', controller: 'signupCtrl'}).
-	        when('/signin', {templateUrl: 'signin.html', controller: 'signinCtrl'}).
+	        when('/signin', {templateUrl: 'signin.html', controller: 'signinCtrl as si'}).
+	        when('/test', {templateUrl: 'header.html'}).
 	        otherwise({redirectTo: '/signup'});
     }]);
 
@@ -14,7 +15,7 @@
 
 	app.service('sessionService', ['$rootScope','$q', function($rootScope, $q){
 
-		this.login = function(user){
+		this.login = function(user,$location){
 
 			var loginDefered = $q.defer();
 			var loginPromise = loginDefered.promise;
@@ -22,13 +23,14 @@
 			loginPromise.then(
 				function(user){	
 					$rootScope.sessionUser = user;
+					$location.path('/test');
 				//	console.log($rootScope.sessionUser.get("username"));
 				},
 				function(error){
 					console.log(error);
 				});
 
-			Parse.User.logIn(user.login,user.password, {
+			Parse.User.logIn(user.email,user.password, {
 				success: function(user){
 					loginDefered.resolve(user);
 				},
@@ -46,11 +48,13 @@
     });
 
 
-    app.controller('signinCtrl', ['sessionService', '$scope', function(sessionService, $scope){
-    	$scope.signIn = function(){
-    		console.log("test");
-    		sessionService.login($scope.user);
+    app.controller('signinCtrl', ['sessionService','$scope','$location', function(sessionService,$scope,$location){
+    	this.signIn = function(){
+    		console.log($scope);
+    		sessionService.login($scope.user,$location);
     	};
+
+    	console.log(this.signIn);
 
     }]);
 
