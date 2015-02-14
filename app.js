@@ -2,13 +2,13 @@
 
 	var app = angular.module('applicationManager',['angularFileUpload']);
 
-	app.controller('applicationController', ['$http','$q',function($http,$q){
+	app.controller('applicationController', ['$http','$q','$scope',function($http,$q,$scope){
 
 
 		Parse.initialize("HCf9xf3DDDBH4BTY3qwRqxVHeiQ2GW1V2JIx6KBv", "78VAu3yojn4H5bhjKEPa1opxy3bHmQSfPk8S1dAo");
 
-		var thisApp =this;
-		thisApp.username = "";
+
+		$scope.username = "";
 
 
 		var myThirdDefered = $q.defer();
@@ -17,26 +17,12 @@
 		myThirdPromise.then(
 			function(user){
 				var currentUser = Parse.User.current();
-				thisApp.username = currentUser.get("username");
-				console.log(thisApp.username); 
+				$scope.username = currentUser.get("username");
 			},
 			function(error){
 				console.log(error);
 			})
-/*
-		var user = new Parse.User();
-		user.set("username","test");
-		user.set("password","test");
-		user.set("email","test@test.com");
-		user.signUp(null, {
-				success : function(user){
-					console.log(user.objectId);
-					Parse.},
-				error : function(error){
-					console.log(error);
-				}
-		});
-*/
+
 		Parse.User.logIn("test","test", {
 			success: function(user){
 				myThirdDefered.resolve(user);
@@ -139,10 +125,51 @@
             });
         }
     }]);
-    
-    
-    
 
+    app.controller('signupController',['$q','$scope',function($q,$scope){
+        var signUp = this;
+        signUp.user = {};
+        $scope.isSignUpInvalid = false;
+        $scope.signupError ="";
+        $scope.isSignupSuccessful =false;
+        
+        
+        var signupDefered = $q.defer();
+        var signupPromise = signupDefered.promise;
+        
+        signupDefered.promise
+            .then(function(user){
+					console.log("utilisateur créé",user.objectId);
+                    $scope.isSignupSuccessful =true;
+                    $scope.isSignUpInvalid = false;
+				    $scope.username = user.get("username");
+				    console.log(user.get("username"));
+                },
+                function(msg,object){
+				    console.log("dans la fonction reject :",msg,object);
+					$scope.signupError = msg.message;
+					$scope.isSignUpInvalid = true;
+                    
+                });
+        
+        this.signUp = function(){
+    		var user = new Parse.User();
+    		user.set("username",signUp.user.email);
+    		user.set("email",signUp.user.email);
+    		user.set("password",signUp.user.password);
+    		user.signUp(null, {
+    				success : function(user){
+    				    signupDefered.resolve(user);
+    					},
+    				error : function(object,msg){
+    				    signupDefered.reject(msg,object);
+    				}
+    		});
+        };
+        
+        
+        
+    }]);
 
 
 	app.controller('uploadController', ['$scope', '$q', function ($scope, $q) {

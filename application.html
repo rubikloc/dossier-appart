@@ -12,7 +12,7 @@
 
 <body ng-controller="applicationController as applicationCtrl">
 	
-	<h1>Consitutez votre dossier , {{applicationCtrl.username}}</h1>
+	<h1>Consitutez votre dossier , {{username}}</h1>
 	<br/>
 
 	<div class="container-fluid">
@@ -60,7 +60,28 @@
     	</div>
 
     </div>
-
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <form name="signUp" ng-controller="signupController as signupCtrl" ng-submit="signupCtrl.signUp()">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" id="email" ng-model="signupCtrl.user.email" class="form-control ng-valid ng-valid-email" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" id="password" ng-model="signupCtrl.user.password" placeholder="Mot de passe" class = "form-control">
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Cr&eacute;er mon compte" class="btn btn-primary"/>
+                    
+                    </div>
+                    <div ng-show="isSignUpInvalid">{{signupError}}</div>
+                    <div ng-show="isSignupSuccessful">Votre compte a &eacute;t&eacute; cr&eacute;&eacute;</div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
