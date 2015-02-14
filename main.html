@@ -15,8 +15,11 @@
 
 <body>
 	
-	<header>
+	<header ng-controller="headerCtrl as headerCtrl">
 		<h1>Dossier Appart'</h1>
+    </br>
+    <button ng-click="headerCtrl.logOut()">Log out</button>
+
 	</header>
 
 	<ng-view>Loading ...</ng-view>
