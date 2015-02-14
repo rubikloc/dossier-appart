@@ -12,8 +12,14 @@
 
 <body ng-controller="applicationController as applicationCtrl">
 	
-	<h1>Consitutez votre dossier , {{username}}</h1>
+	<h1>Consitutez votre dossier , 1 {{username}}</h1>
+    <h1>Consitutez votre dossier , 2 {{username2}}</h1>
 	<br/>
+
+
+    <button ng-click="getEmail()">Show Profile</button>
+
+    <div>Your email is : {{email}}</div>
 
 	<div class="container-fluid">
 		<div class="row">

@@ -2,35 +2,72 @@
 
 	var app = angular.module('applicationManager',['angularFileUpload']);
 
-	app.controller('applicationController', ['$http','$q','$scope',function($http,$q,$scope){
 
-
+	app.run(function($rootScope){
+		
 		Parse.initialize("HCf9xf3DDDBH4BTY3qwRqxVHeiQ2GW1V2JIx6KBv", "78VAu3yojn4H5bhjKEPa1opxy3bHmQSfPk8S1dAo");
+		$rootScope.sessionUser = {};
+		//$rootScope.sessionUser = Parse.User.current();
+		//$rootScope.sessionUser.get = function(test) {};
+		
+	});
+
+	app.service('sessionService', ['$rootScope','$q', function($rootScope, $q){
+
+		this.login = function($scope){
+
+			var loginDefered = $q.defer();
+			var loginPromise = loginDefered.promise;
+
+			loginPromise.then(
+				function(user){	
+					$rootScope.sessionUser = user;
+			//		$scope.username = user.get("username");
+				},
+				function(error){
+					console.log(error);
+				});
+
+			Parse.User.logIn("alex@ifeelgoods.com","test", {
+				success: function(user){
+					loginDefered.resolve(user);
+				},
+				error:function(error){
+					loginDefered.reject(error);
+				}
+			});
+
+		};
+
+	}]);
 
 
-		$scope.username = "";
+/*
+
+	app.factory('applicationFactory', ['$q', function(){
+		return function name(){
+			
+		};
+	}])
+
+*/
+
+	app.controller('applicationController', ['$http','$q','$scope','$rootScope', 'sessionService',function($http,$q,$scope,$rootScope, sessionService){
 
 
-		var myThirdDefered = $q.defer();
-		var myThirdPromise = myThirdDefered.promise;
+//		Parse.initialize("HCf9xf3DDDBH4BTY3qwRqxVHeiQ2GW1V2JIx6KBv", "78VAu3yojn4H5bhjKEPa1opxy3bHmQSfPk8S1dAo");
 
-		myThirdPromise.then(
-			function(user){
-				var currentUser = Parse.User.current();
-				$scope.username = currentUser.get("username");
-			},
-			function(error){
-				console.log(error);
-			})
 
-		Parse.User.logIn("test","test", {
-			success: function(user){
-				myThirdDefered.resolve(user);
-			},
-			error:function(error){
-				myFirstDeferred.reject(error);
-			}
-		});
+		sessionService.login($scope); 
+
+		$scope.getEmail = function() {
+			$scope.email = $rootScope.sessionUser.get("email");
+			$scope.username = $rootScope.sessionUser.get("username");
+		};
+
+
+	//	$scope.username = $rootScope.sessionUser.get("username");
+
 
 /*
 		var TestObject = Parse.Object.extend("TestObject2");
