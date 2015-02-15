@@ -80,30 +80,13 @@
 
 	app.factory('applicationFactory', ['$q', function($q){
 		
-		this.getAppFiles = function(user, $scope){
+		this.getAppFiles = function(user){
 
 			var appFilesDefered = $q.defer();
 	        var appFilesPromise = appFilesDefered.promise;
 
-	        appFilesPromise.
-	            then(function(results){
-	                
-            		var urls =[];
-			        for(var i= 0; i < results.length; i++){
-			            urls.push(results[i].get("applicantResumeFile").url());
-			        }
-			        
-	                $scope.appFilesUrls = urls;
-	            },
-	            function(error){
-	                console.log('erreur dans la récup des résultats pour un user: ',error);
-	            }
-	        );   
-
 			var JobApplication = Parse.Object.extend("JobApplication");        
-	        
 	        var appFilesQuery = new Parse.Query(JobApplication);
-	        
 	        appFilesQuery.equalTo("parent",user);
 	        
 	        appFilesQuery.find({
@@ -114,9 +97,8 @@
 	               appFilesDefered.reject(object,error);
 	           }
 	        });
-	        
+	        return appFilesPromise;
         };
-
 		return this;
 	}])
 
@@ -124,7 +106,6 @@
     app.controller('signupCtrl', ['sessionService','$scope', function(sessionService,$scope){
     	this.signUp = function() {
     		sessionService.signup($scope.user);
-
     	};
     }]);
 
@@ -134,22 +115,31 @@
     		console.log($scope);
     		sessionService.login($scope.user);
     	};
-
     }]);
 
 
     app.controller('headerCtrl', ['sessionService', '$scope', function(sessionService, $scope){
     	this.logOut = function(){
     		sessionService.logout();
-
     	};
-    	
     }])
 
     app.controller('homeCtrl', ['$rootScope','$scope', 'applicationFactory', function($rootScope,$scope,applicationFactory){
-    	applicationFactory.getAppFiles($rootScope.sessionUser, $scope);
-
+    	
+    	applicationFactory.getAppFiles($rootScope.sessionUser).
+            then(function(results){
+        		var urls =[];
+		        for(var i= 0; i < results.length; i++){
+		            urls.push(results[i].get("applicantResumeFile").url());
+		        }
+                $scope.appFilesUrls = urls;
+            },
+            function(error){
+                console.log('erreur dans la récup des résultats pour un user: ',error);
+            }
+        	);   
     }])
+
 
 
 })();
