@@ -56,6 +56,17 @@
 		};
 	}]);
 
+	app.service('initApplicationFile', ['$http','$q', function($http,$q){
+		return function(user){
+			$http.get('application-files-init.json').
+				then(
+					function(applicationFiles){
+						console.log(applicationFiles);
+					});
+		};
+			
+	}])
+
 	app.factory('applicationFactory', ['$q', function($q){
 		
 		return {
@@ -85,12 +96,14 @@
 
 			var parseFile = new Parse.File(file.name, file);
 
-			parseFile.save().then(function() {
-				console.log("The file has been saved to Parse.") ;
-
-			}, function(error) {
-				console.log(error);
-			});
+			parseFile.save().
+				then(
+					function() {
+						console.log("The file has been saved to Parse.") ;
+					},
+					function(error) {
+						console.log(error);
+					});
 
 			var applicationFile = new Parse.Object("ApplicationFile");
 			
@@ -116,12 +129,13 @@
 	}])
 
 
-    app.controller('signupCtrl', ['sessionService','$scope','$rootScope','$location', function(sessionService,$scope,$rootScope,$location){
+    app.controller('signupCtrl', ['sessionService','$scope','$rootScope','$location','initApplicationFile', function(sessionService,$scope,$rootScope,$location,initApplicationFile){
     	this.signUp = function() {
     		sessionService.signup($scope.user).
     			then(
 	    			function(user){
 	                    $rootScope.sessionUser = user;
+	                    initApplicationFile();
 	                    $location.path('/home');
 	                },
 	                function(errorMsg){
@@ -168,18 +182,11 @@
             }
         	);   
 
-// A ré-écrire proprement
+		$scope.$watch('files', function () {	        
+	        if ($scope.files && $scope.files.length) {
 
-		$scope.$watch('files', function () {
-	        $scope.upload($scope.files);
-	    });
-
-	    $scope.upload = function (files) {
-
-	        if (files && files.length) {
-
-	            for (var i = 0; i < files.length; i++) {
-	                var file = files[i];
+	            for (var i = 0; i < $scope.files.length; i++) {
+	                var file = $scope.files[i];
   					
   					uploadFactory(file, $rootScope.sessionUser).
   						then(
@@ -189,10 +196,9 @@
   							function(error){
   								console.log(error);
   							});
-
 		            }
 		        }
-		    };
+	    });
 
     }])
 
