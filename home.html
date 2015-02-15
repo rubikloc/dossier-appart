@@ -3,26 +3,45 @@
 
 <h3>Upload new file : </h3>
 
-<div>
-    Drop File:
-    <div ng-file-drop ng-file-select ng-model="files" class="drop-box" 
-        drag-over-class="dragover" ng-multiple="true" allow-dir="true"
-        accept="image/*,application/pdf" ><p ng-hide="files">Drop pdfs or images here or click to upload</p><img class="img-centered" ng-show="files" src="img/loader.gif"></div>
-   
-    <div ng-no-file-drop>File Drag/Drop is not supported for this browser</div>
-   
-   <p ng-show="files">Uploading : </p>
-    <ul>
-        <li ng-repeat="f in files" style="font:smaller">
-        	{{f.name}}
-        </li>
-    </ul>
+Select Type of File : 
+<select ng-model="newType" ng-options="applicationFile.type as applicationFile.type for applicationFile in application"></select>
 
+<div ng-file-drop ng-file-select ng-model="files" class="drop-box" drag-over-class="dragover" ng-multiple="true" allow-dir="true" accept="image/*,application/pdf" >
+
+		<p ng-hide="files">Drop pdfs or images here or click to upload</p>
+	        <img class="img-centered" ng-show="files" src="img/loader.gif"></div>
+	   
+	    <div ng-no-file-drop>File Drag/Drop is not supported for this browser</div>
+
+	   <p ng-show="files">Uploading : </p>
+	    <ul>
+	        <li ng-repeat="f in files" style="font:smaller">
+	        	{{f.name}}
+	        </li>
+	    </ul>
+</div>
+
+
+
+<div class="container-fluid">
+	<div class="row">
+  		<div class="col-md-2" ng-repeat="applicationFile in application">
+  			
+  			<ul class="text-center list-unstyled">
+				<img ng-src="img/file.png" ng-hide="applicationFile.url"/>
+				<img ng-src="img/check.png" ng-show="applicationFile.url"/>
+				<li>Type : {{applicationFile.type}}</li>
+
+			</ul>
+
+  		</div>
+	</div>
 </div>
 
 
 <h3>Your files  below : </h3>
 
 <ul>
-    <li ng-repeat="url in appFilesUrls"><img ng-src="{{url}}"/></li>    
+    <li ng-repeat="applicationFile in application">{{applicationFile.type}}</br><img ng-src="{{applicationFile.url}}"/></li>    
 </ul>
+

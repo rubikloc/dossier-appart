@@ -58,10 +58,24 @@
 
 	app.service('initApplicationFile', ['$http','$q', function($http,$q){
 		return function(user){
-			$http.get('application-files-init.json').
+			$http.get('application-types.json').
 				then(
-					function(applicationFiles){
-						console.log(applicationFiles);
+					function(response){
+
+						for (var i=0 ; i < response.data.length; i++){
+
+							var type = response.data[i].type;
+
+							var applicationFile = new Parse.Object("ApplicationFile");
+							applicationFile.set("type", type)
+							applicationFile.setACL(new Parse.ACL(user));
+							applicationFile.set("user",user);
+							applicationFile.save();
+
+							// Defered to be created to avoid redirect before init of application files
+
+						}						
+
 					});
 		};
 			
@@ -92,7 +106,7 @@
 	}])
 
 	app.factory('uploadFactory', ['$q', function($q){
-		return function upload(file, user){
+		return function upload(file, type, user){
 
 			var parseFile = new Parse.File(file.name, file);
 
@@ -108,10 +122,10 @@
 			var applicationFile = new Parse.Object("ApplicationFile");
 			
 			applicationFile.set("file", parseFile);
+			applicationFile.set("type", type);
 			applicationFile.set("fileName", file.name)
 			applicationFile.setACL(new Parse.ACL(user));
-			applicationFile.set("user",user);
-			applicationFile.save();					
+			applicationFile.set("user",user);	
 
 			var applicationDeferred = $q.defer();
 
@@ -135,7 +149,7 @@
     			then(
 	    			function(user){
 	                    $rootScope.sessionUser = user;
-	                    initApplicationFile();
+	                    initApplicationFile(user);
 	                    $location.path('/home');
 	                },
 	                function(errorMsg){
@@ -171,24 +185,41 @@
     	
     	applicationFactory.getAppFiles($rootScope.sessionUser).
             then(function(results){
-        		var urls =[];
+        		var application =[];
+
 		        for(var i= 0; i < results.length; i++){
-		            urls.push(results[i].get("file").url());
+		            
+		            var simpleApplicationFile = {"type":"default"};
+
+		            simpleApplicationFile.id = results[i].id;
+		            if (results[i].get("type")) {
+		            	simpleApplicationFile.type = results[i].get("type");
+		            };
+
+		            if(results[i].get("file")) {
+		            	simpleApplicationFile.url = results[i].get("file").url();
+		            };
+		        	application.push(simpleApplicationFile);
 		        }
-                $scope.appFilesUrls = urls;
+                $scope.application = application;
+
             },
             function(error){
                 console.log('erreur dans la récup des résultats pour un user: ',error);
             }
         	);   
 
+
 		$scope.$watch('files', function () {	        
+			console.log($scope.files);
+			console.log($scope.newType);
+
 	        if ($scope.files && $scope.files.length) {
 
 	            for (var i = 0; i < $scope.files.length; i++) {
 	                var file = $scope.files[i];
   					
-  					uploadFactory(file, $rootScope.sessionUser).
+  					uploadFactory(file, $scope.newType, $rootScope.sessionUser).
   						then(
   							function(applicationFile){
   								$route.reload();    	
