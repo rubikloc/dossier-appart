@@ -11,10 +11,11 @@
     background: #F8F8F8;
     border: 5px dashed #DDD;
     width: 200px;
-    height: 65px;
+    height: 100px;
     text-align: center;
     padding-top: 25px;
     margin: 10px;
+    cursor: pointer;
 }
 .dragover {
     border: 5px dashed blue;
@@ -23,4 +24,8 @@
 .thumbnail{
     max-height: 100px;
     max-width: 100px;
+}
+
+.img-centered {
+    padding-top: 10px;
 }

@@ -63,9 +63,9 @@
 
 				var appFilesDefered = $q.defer();
 
-				var JobApplication = Parse.Object.extend("JobApplication");        
-		        var appFilesQuery = new Parse.Query(JobApplication);
-		        appFilesQuery.equalTo("parent",user);
+				var ApplicationFile = Parse.Object.extend("ApplicationFile");        
+		        var appFilesQuery = new Parse.Query(ApplicationFile);
+		        appFilesQuery.equalTo("user",user);
 		        
 		        appFilesQuery.find({
 		           success : function(results){
@@ -81,8 +81,37 @@
 	}])
 
 	app.factory('uploadFactory', ['$q', function($q){
-		return function upload(files){
+		return function upload(file, user){
+
+			var parseFile = new Parse.File(file.name, file);
+
+			parseFile.save().then(function() {
+				console.log("The file has been saved to Parse.") ;
+
+			}, function(error) {
+				console.log(error);
+			});
+
+			var applicationFile = new Parse.Object("ApplicationFile");
 			
+			applicationFile.set("file", parseFile);
+			applicationFile.set("fileName", file.name)
+			applicationFile.setACL(new Parse.ACL(user));
+			applicationFile.set("user",user);
+			applicationFile.save();					
+
+			var applicationDeferred = $q.defer();
+
+			applicationFile.save(null, {
+				success: function(applicationFile) {
+				    applicationDeferred.resolve(applicationFile);
+				},
+				error: function(applicationFile, error) {
+				  	applicationDeferred.resolve(error);
+				}
+			});	
+
+			return applicationDeferred.promise ;
 		};
 	}])
 
@@ -124,13 +153,13 @@
     	};
     }])
 
-    app.controller('homeCtrl', ['$rootScope','$scope', 'applicationFactory', '$q', '$route', function($rootScope,$scope,applicationFactory,$q, $route){
+    app.controller('homeCtrl', ['$rootScope','$scope', 'applicationFactory', '$route', 'uploadFactory', function($rootScope,$scope,applicationFactory,$route, uploadFactory){
     	
     	applicationFactory.getAppFiles($rootScope.sessionUser).
             then(function(results){
         		var urls =[];
 		        for(var i= 0; i < results.length; i++){
-		            urls.push(results[i].get("applicantResumeFile").url());
+		            urls.push(results[i].get("file").url());
 		        }
                 $scope.appFilesUrls = urls;
             },
@@ -151,54 +180,19 @@
 
 	            for (var i = 0; i < files.length; i++) {
 	                var file = files[i];
-  					var parseFile = new Parse.File(file.name, file);
-
-					parseFile.save().then(function() {
-					  //alert("The file has been saved to Parse.") ;
-
-					}, function(error) {
-					  console.log(error);
-					});
-
-					$scope.url = "";
-					var mySecondDeferred = $q.defer();
-					var mySecondPromise = mySecondDeferred.promise;
-
-					mySecondPromise.
-							then(function(jobApplication){
-									$route.reload();
-								},
-								function(error){
-									console.log("Pb");
-								});
-
-					var jobApplication = new Parse.Object("JobApplication");
-					jobApplication.set("applicantName", "Joe Smith");
-					jobApplication.set("applicantResumeFile", parseFile);
-					jobApplication.set("fileName", file.name)
-					jobApplication.setACL(new Parse.ACL($rootScope.sessionUser));
-					jobApplication.set("parent",$rootScope.sessionUser);
-					jobApplication.save();					
-
-					jobApplication.save(null, {
-						  success: function(jobApplication) {
-						    // Execute any logic that should take place after the object is saved.
-						    mySecondDeferred.resolve(jobApplication);
-
-						  },
-						  error: function(jobApplication, error) {
-						    // Execute any logic that should take place if the save fails.
-						    // error is a Parse.Error with an error code and message.
-						    alert('Failed to create new object, with error code: ' + error.message);
-						  }
-			});					
-
+  					
+  					uploadFactory(file, $rootScope.sessionUser).
+  						then(
+  							function(applicationFile){
+  								$route.reload();    	
+  							},
+  							function(error){
+  								console.log(error);
+  							});
 
 		            }
 		        }
 		    };
-
-
 
     }])
 
