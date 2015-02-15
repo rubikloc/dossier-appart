@@ -1,3 +1,28 @@
+
+<h1>Hello {{sessionUser.get("username")}}</h1>
+
+<a ng-click="reloadRoute()" class="navbar-brand" title="home">Rrefresh</a>
+
+<h3>Upload new file : </h3>
+
+<div>
+    Drop File:
+    <div ng-file-drop ng-file-select ng-model="files" class="drop-box" 
+        drag-over-class="dragover" ng-multiple="true" allow-dir="true"
+        accept="image/*,application/pdf">Drop pdfs or images here or click to upload</div>
+   
+    <div ng-no-file-drop>File Drag/Drop is not supported for this browser</div>
+   
+    <ul>
+        <li ng-repeat="f in files" style="font:smaller">
+        	Uploading ...</br>
+        	{{f.name}}
+        </li>
+    </ul>
+
+</div>
+
+
 <h3>Your files  below : </h3>
 
 <ul>

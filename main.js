@@ -1,5 +1,5 @@
 (function(){
-	var app= angular.module("applicationManager", ['ngRoute']);
+	var app= angular.module("applicationManager", ['ngRoute', 'angularFileUpload']);
 
 	app.config(['$routeProvider', function($routeProvider) {	
 		$routeProvider.
@@ -124,8 +124,13 @@
     	};
     }])
 
-    app.controller('homeCtrl', ['$rootScope','$scope', 'applicationFactory', function($rootScope,$scope,applicationFactory){
+    app.controller('homeCtrl', ['$rootScope','$scope', 'applicationFactory', '$q', '$route', function($rootScope,$scope,applicationFactory,$q, $route){
     	
+
+// Problem to solve
+    	$rootScope.sessionUser = Parse.User.current();
+// Problem to solve
+
     	applicationFactory.getAppFiles($rootScope.sessionUser).
             then(function(results){
         		var urls =[];
@@ -138,8 +143,68 @@
                 console.log('erreur dans la récup des résultats pour un user: ',error);
             }
         	);   
+
+// A ré-écrire proprement
+
+		$scope.$watch('files', function () {
+	        $scope.upload($scope.files);
+	    });
+
+	    $scope.upload = function (files) {
+
+	        if (files && files.length) {
+
+	            for (var i = 0; i < files.length; i++) {
+	                var file = files[i];
+  					var parseFile = new Parse.File(file.name, file);
+
+					parseFile.save().then(function() {
+					  //alert("The file has been saved to Parse.") ;
+
+					}, function(error) {
+					  console.log(error);
+					});
+
+					$scope.url = "";
+					var mySecondDeferred = $q.defer();
+					var mySecondPromise = mySecondDeferred.promise;
+
+					mySecondPromise.
+							then(function(jobApplication){
+									$route.reload();
+								},
+								function(error){
+									console.log("Pb");
+								});
+
+					var jobApplication = new Parse.Object("JobApplication");
+					jobApplication.set("applicantName", "Joe Smith");
+					jobApplication.set("applicantResumeFile", parseFile);
+					jobApplication.set("fileName", file.name)
+					jobApplication.setACL(new Parse.ACL($rootScope.sessionUser));
+					jobApplication.set("parent",$rootScope.sessionUser);
+					jobApplication.save();					
+
+					jobApplication.save(null, {
+						  success: function(jobApplication) {
+						    // Execute any logic that should take place after the object is saved.
+						    mySecondDeferred.resolve(jobApplication);
+
+						  },
+						  error: function(jobApplication, error) {
+						    // Execute any logic that should take place if the save fails.
+						    // error is a Parse.Error with an error code and message.
+						    alert('Failed to create new object, with error code: ' + error.message);
+						  }
+			});					
+
+
+		            }
+		        }
+		    };
+
+
+
     }])
-
-
 
 })();
