@@ -58,25 +58,35 @@
 
 	app.service('initApplicationFile', ['$http','$q', function($http,$q){
 		return function(user){
+
+			var initDefered = $q.defer();
+			var application = [];
+
 			$http.get('application-types.json').
 				then(
 					function(response){
 
-						for (var i=0 ; i < response.data.length; i++){
-
-							var type = response.data[i].type;
+						angular.forEach(response.data, function(ApplicationFileType){
 
 							var applicationFile = new Parse.Object("ApplicationFile");
-							applicationFile.set("type", type)
+							applicationFile.set("type", ApplicationFileType.type);
 							applicationFile.setACL(new Parse.ACL(user));
 							applicationFile.set("user",user);
-							applicationFile.save();
+							application.push(applicationFile);
+						});
 
-							// Defered to be created to avoid redirect before init of application files
 
-						}						
-
+						Parse.Object.saveAll(application, {
+							success:function(appResults){
+								initDefered.resolve(appResults);
+							},
+							error:function(error){
+								initDefered.reject(error);
+							}
+						});
 					});
+
+			return initDefered.promise;
 		};
 			
 	}])
@@ -145,14 +155,28 @@
 
     app.controller('signupCtrl', ['sessionService','$scope','$rootScope','$location','initApplicationFile', function(sessionService,$scope,$rootScope,$location,initApplicationFile){
     	this.signUp = function() {
+    		$scope.loading = true;
+    		//création du compte via le service sessionService
     		sessionService.signup($scope.user).
     			then(
 	    			function(user){
 	                    $rootScope.sessionUser = user;
-	                    initApplicationFile(user);
-	                    $location.path('/home');
+	                    //initiatlisation des applicationFiles pour les différents types via le service initApplicationFile
+	                    initApplicationFile(user).
+	                    	then(
+	                    		function(appResults){
+	                    			console.log("fini");
+	                    			//redirection vers la page d'accueil
+	                    			$location.path('/home');
+    								$scope.loading = false;
+	                    		},
+	                    		function(error){
+    								$scope.loading = false;
+									console.log("erreur à l'initialisation des appfiles",error);
+	                    		});
 	                },
 	                function(errorMsg){
+						$scope.loading = false;
 	                	$scope.signError = errorMsg.message;           
 	                });				
     	};
@@ -210,9 +234,7 @@
         	);   
 
 
-		$scope.$watch('files', function () {	        
-			console.log($scope.files);
-			console.log($scope.newType);
+		$scope.$watch('files', function () {	    
 
 	        if ($scope.files && $scope.files.length) {
 
