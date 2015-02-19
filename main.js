@@ -101,6 +101,7 @@
 				var ApplicationFile = Parse.Object.extend("ApplicationFile");        
 		        var appFilesQuery = new Parse.Query(ApplicationFile);
 		        appFilesQuery.equalTo("user",user);
+		        appFilesQuery.ascending("objectId");
 		        
 		        appFilesQuery.find({
 		           success : function(results){
@@ -111,44 +112,73 @@
 		           }
 		        });
 		        return appFilesDefered.promise;
+		    },
+		    //mise à jour d'un applicationFile avec le bon fichier
+		    updateAppFiles : function(file,appFile, user){
+		    	var parseFile = new Parse.File(file.name, file);
+				parseFile.save().
+					then(
+						function() {
+						},
+						function(error) {
+							console.log("erreur d'enregistrement du fichier",error);
+						});
+
+		    	var updateDefered = $q.defer();
+		    	var applicationFile = Parse.Object("ApplicationFile");
+		    	applicationFile.id= appFile.id;
+		    	applicationFile.set("file",parseFile);
+		    	applicationFile.set("fileName",file.name);
+		    	applicationFile.save(null, {
+		    		success : function(applicationFile){
+		    			updateDefered.resolve(applicationFile);
+		    		},
+		    		error : function(applicationFile,error){
+		    			updateDefered.reject("erreur d'enregistrement du applicationFile",error);
+		    		}
+		    	});
+
+		    	return updateDefered.promise;
 		    }
         };
 	}])
 
 	app.factory('uploadFactory', ['$q', function($q){
-		return function upload(file, type, user){
+		return  {
+			upload : function (file, type, user){
 
-			var parseFile = new Parse.File(file.name, file);
+				var parseFile = new Parse.File(file.name, file);
 
-			parseFile.save().
-				then(
-					function() {
-						console.log("The file has been saved to Parse.") ;
+				parseFile.save().
+					then(
+						function() {
+							console.log("The file has been saved to Parse.") ;
+						},
+						function(error) {
+							console.log(error);
+						});
+
+				var applicationFile = new Parse.Object("ApplicationFile");
+				
+				applicationFile.set("file", parseFile);
+				applicationFile.set("type", type);
+				applicationFile.set("fileName", file.name)
+				applicationFile.setACL(new Parse.ACL(user));
+				applicationFile.set("user",user);	
+
+				var applicationDeferred = $q.defer();
+
+				applicationFile.save(null, {
+					success: function(applicationFile) {
+					    applicationDeferred.resolve(applicationFile);
 					},
-					function(error) {
-						console.log(error);
-					});
+					error: function(applicationFile, error) {
+					  	applicationDeferred.reject(error);
+					}
+				});	
 
-			var applicationFile = new Parse.Object("ApplicationFile");
-			
-			applicationFile.set("file", parseFile);
-			applicationFile.set("type", type);
-			applicationFile.set("fileName", file.name)
-			applicationFile.setACL(new Parse.ACL(user));
-			applicationFile.set("user",user);	
-
-			var applicationDeferred = $q.defer();
-
-			applicationFile.save(null, {
-				success: function(applicationFile) {
-				    applicationDeferred.resolve(applicationFile);
-				},
-				error: function(applicationFile, error) {
-				  	applicationDeferred.resolve(error);
-				}
-			});	
-
-			return applicationDeferred.promise ;
+				return applicationDeferred.promise ;
+			}
 		};
 	}])
 
@@ -223,6 +253,7 @@
 		            if(results[i].get("file")) {
 		            	simpleApplicationFile.url = results[i].get("file").url();
 		            };
+		            simpleApplicationFile.id = results[i].id;
 		        	application.push(simpleApplicationFile);
 		        }
                 $scope.application = application;
@@ -241,7 +272,7 @@
 	            for (var i = 0; i < $scope.files.length; i++) {
 	                var file = $scope.files[i];
   					
-  					uploadFactory(file, $scope.newType, $rootScope.sessionUser).
+  					uploadFactory.upload(file, $scope.newType, $rootScope.sessionUser).
   						then(
   							function(applicationFile){
   								$route.reload();    	
@@ -254,5 +285,27 @@
 	    });
 
     }])
+
+	app.controller('uploadCtrl', ['$scope','applicationFactory','$rootScope','$route', function($scope,applicationFactory,$rootScope,$route){
+		$scope.startUpload = function(){
+
+	        if ($scope.applicationFile.mfiles && $scope.applicationFile.mfiles.length) {
+	            for (var i = 0; i < $scope.applicationFile.mfiles.length; i++) {
+	                var file = $scope.applicationFile.mfiles[i];
+						
+						applicationFactory.updateAppFiles(file,$scope.applicationFile,$rootScope.sessionUser).
+							then(
+								function(applicationFile){
+									$scope.applicationFile.mfiles = undefined;
+									$route.reload();
+								},
+								function(error){
+									console.log(error);
+								});
+	            }
+        	}
+		};
+		
+	}])
 
 })();

@@ -25,13 +25,26 @@ Select Type of File :
 
 <div class="container-fluid">
 	<div class="row">
-  		<div class="col-md-2" ng-repeat="applicationFile in application">
+  		<div class="col-md-2" ng-repeat="applicationFile in application" ng-controller="uploadCtrl">
   			
   			<ul class="text-center list-unstyled">
 				<img ng-src="img/file.png" ng-hide="applicationFile.url"/>
 				<img ng-src="img/check.png" ng-show="applicationFile.url"/>
 				<li>Type : {{applicationFile.type}}</li>
+				<div ng-file-drop ng-file-select ng-model="applicationFile.mfiles" ng-change="startUpload()" class="drop-box" drag-over-class="dragover" ng-multiple="true" allow-dir="true" accept="image/*,application/pdf" >
 
+						<p ng-hide="applicationFile.mfiles">Drop pdfs or images here or click to upload</p>
+					        <img class="img-centered" ng-show="applicationFile.mfiles" src="img/loader.gif"></div>
+					   
+					    <div ng-no-file-drop>File Drag/Drop is not supported for this browser</div>
+
+					   <p ng-show="applicationFile.mfiles">Uploading : </p>
+					    <ul>
+					        <li ng-repeat="f in applicationFile.mfiles" style="font:smaller">
+					        	{{f.name}}
+					        </li>
+					    </ul>
+				</div>
 			</ul>
 
   		</div>
