@@ -101,7 +101,7 @@
 				var ApplicationFile = Parse.Object.extend("ApplicationFile");        
 		        var appFilesQuery = new Parse.Query(ApplicationFile);
 		        appFilesQuery.equalTo("user",user);
-		        appFilesQuery.ascending("objectId");
+		        appFilesQuery.ascending('createdAt');
 		        
 		        appFilesQuery.find({
 		           success : function(results){
