@@ -4,7 +4,7 @@
 <h3>Upload new file : </h3>
 
 Select Type of File : 
-<select ng-model="newType" ng-options="applicationFile.type as applicationFile.type for applicationFile in application"></select>
+<select ng-model="newType" ng-options="applicationFile.type as applicationFile.type for applicationFile in application | unique:'type'"></select>
 
 <div ng-file-drop ng-file-select ng-model="files" class="drop-box" drag-over-class="dragover" ng-multiple="true" allow-dir="true" accept="image/*,application/pdf" >
 

@@ -1,5 +1,5 @@
 (function(){
-	var app= angular.module("applicationManager", ['ngRoute', 'angularFileUpload']);
+	var app= angular.module("applicationManager", ['ngRoute', 'angularFileUpload','ui.unique']);
 
 	app.config(['$routeProvider', function($routeProvider) {	
 		$routeProvider.
@@ -195,7 +195,6 @@
 	                    initApplicationFile(user).
 	                    	then(
 	                    		function(appResults){
-	                    			console.log("fini");
 	                    			//redirection vers la page d'accueil
 	                    			$location.path('/home');
     								$scope.loading = false;
