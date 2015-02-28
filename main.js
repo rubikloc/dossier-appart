@@ -6,6 +6,7 @@
 	        when('/signup', {templateUrl: 'signup.html', controller: 'signupCtrl as signupCtrl'}).
 	        when('/signin', {templateUrl: 'signin.html', controller: 'signinCtrl as signinCtrl'}).
 	        when('/home', {templateUrl: 'home.html', controller: 'homeCtrl as homeCtrl'}).
+	        when('/success', {templateUrl: 'success.html'}).
 	        otherwise({redirectTo: '/signup'});
     }]);
 
@@ -234,7 +235,7 @@
     	};
     }])
 
-    app.controller('homeCtrl', ['$rootScope','$scope', 'applicationFactory', '$route', 'uploadFactory', function($rootScope,$scope,applicationFactory,$route, uploadFactory){
+    app.controller('homeCtrl', ['$rootScope','$scope', 'applicationFactory', '$route', 'uploadFactory', '$location', function($rootScope,$scope,applicationFactory,$route, uploadFactory, $location){
     	
     	applicationFactory.getAppFiles($rootScope.sessionUser).
             then(function(results){
@@ -283,6 +284,28 @@
 		        }
 	    });
 
+
+		$scope.completeApplication = function() {
+
+			Parse.Cloud.run('notifyStaff', {
+				params : {
+					user_id: $rootScope.sessionUser.id,
+					user_email : $rootScope.sessionUser.get("email")
+					}
+			}, {
+			  success: function(result) {
+			    console.log("Staff has been notified ", result);
+			    $location.path('/success');
+
+			  },
+			  error: function(error) {
+			  }
+			});	    
+
+		};
+
+
+
     }])
 
 	app.controller('uploadCtrl', ['$scope','applicationFactory','$rootScope','$route', function($scope,applicationFactory,$rootScope,$route){
@@ -306,5 +329,7 @@
 		};
 		
 	}])
+
+
 
 })();
