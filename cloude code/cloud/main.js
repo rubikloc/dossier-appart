@@ -2,6 +2,19 @@
 // For example:
 Parse.Cloud.define("notifyStaff", function(request, response) {
  
+ 	var ApplicationFile = Parse.Object.extend("ApplicationFile");        
+    var appFilesQuery = new Parse.Query(ApplicationFile);
+    appFilesQuery.equalTo("user",user);
+
+     appFilesQuery.find({
+		           success : function(results){
+    					console.log(results);
+		           },
+		           error : function(object, error){
+		           		console.log("erreur");
+		           }
+		        });
+    
  
     var newMessage = 
             {   
@@ -24,8 +37,7 @@ Parse.Cloud.define("notifyStaff", function(request, response) {
  
                 ]
               }; 
-               
- 
+                
     var Mandrill = require('mandrill');
      
     Mandrill.initialize('RFFx7QftdIeqG0VIH-dXnQ');
