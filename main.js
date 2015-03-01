@@ -295,12 +295,13 @@
 			}, {
 			  success: function(result) {
 			    console.log("Staff has been notified ", result);
-			    $location.path('/success');
 
 			  },
 			  error: function(error) {
 			  }
-			});	    
+			});
+			
+		    $location.path('/success');	    
 
 		};
 
